@@ -1,16 +1,20 @@
 [project]
 name = "openenv-marketplace-negotiation"
 version = "0.1.0"
-description = "Marketplace negotiation environment using OpenEnv"
+description = "Marketplace negotiation environment"
 authors = [
-  { name="Team", email="team@example.com" }
+  { name = "Team" }
 ]
+
+requires-python = ">=3.10"
+
 dependencies = [
   "fastapi",
   "uvicorn",
   "pydantic",
-  "openai"
+  "openai",
+  "openenv"
 ]
 
-[tool.openenv]
-entrypoint = "app:app"
+[project.scripts]
+server = "app:app"
