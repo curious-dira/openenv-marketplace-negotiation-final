@@ -1,0 +1,22 @@
+name: marketplace_negotiation_env
+description: Multi-step marketplace negotiation environment with dynamic buyer behavior
+
+observation_space:
+  type: structured
+  fields:
+    - listed_price
+    - buyer_offer
+    - round
+    - max_rounds
+
+action_space:
+  - accept
+  - reject
+  - counter
+
+reward_range: [0.0, 1.0]
+
+tasks:
+  - high_offer
+  - medium_offer
+  - dynamic_negotiation
