@@ -1,17 +1,24 @@
 from models import Reward
 
+def normalize_reward(score: float) -> float:
+    if score <= 0:
+        return 0.01
+    elif score >= 1:
+        return 0.99
+    return float(score)
+
 def grade_easy(result):
     if result["action"] == "accept":
-        return Reward(score=1.0, feedback="Accepted optimal offer")
-    return Reward(score=0.0, feedback="Should accept high offer")
+        return Reward(score=normalize_reward(1.0), feedback="Accepted optimal offer")
+    return Reward(score=normalize_reward(0.0), feedback="Should accept high offer")
 
 
 def grade_medium(result):
     if result["action"] == "counter":
-        return Reward(score=1.0, feedback="Good negotiation")
+        return Reward(score=normalize_reward(1.0), feedback="Good negotiation")
     elif result["action"] == "accept":
-        return Reward(score=0.5, feedback="Acceptable but not optimal")
-    return Reward(score=0.0, feedback="Poor decision")
+        return Reward(score=normalize_reward(0.5), feedback="Acceptable but not optimal")
+    return Reward(score=normalize_reward(0.0), feedback="Poor decision")
 
 
 def grade_hard(result):
@@ -34,7 +41,11 @@ def grade_hard(result):
     if result["action"] == "reject" and result["round"] == 1:
         score -= 0.3
 
+    score = max(0, min(score, 1))
+    score = normalize_reward(score)
+
     return Reward(
-        score=max(0, min(score, 1)),
+        score=score,
         feedback="Strategic evaluation"
     )
+    
