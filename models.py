@@ -26,3 +26,5 @@ class Reward(BaseModel):
             data["score"] = float(score)
 
         super()._init_(**data)
+
+#final_fix
