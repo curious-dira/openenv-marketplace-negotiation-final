@@ -58,3 +58,5 @@ class MarketEnv:
 
     def state(self):
         return self.state_data
+    
+    #final_fix
