@@ -9,16 +9,16 @@ def normalize_reward(score: float) -> float:
 
 def grade_easy(result):
     if result["action"] == "accept":
-        return Reward(score=normalize_reward(1.0), feedback="Accepted optimal offer")
-    return Reward(score=normalize_reward(0.0), feedback="Should accept high offer")
+        return Reward(score=normalize_reward(0.99), feedback="Accepted optimal offer")
+    return Reward(score=normalize_reward(0.01), feedback="Should accept high offer")
 
 
 def grade_medium(result):
     if result["action"] == "counter":
-        return Reward(score=normalize_reward(1.0), feedback="Good negotiation")
+        return Reward(score=normalize_reward(0.99), feedback="Good negotiation")
     elif result["action"] == "accept":
         return Reward(score=normalize_reward(0.5), feedback="Acceptable but not optimal")
-    return Reward(score=normalize_reward(0.0), feedback="Poor decision")
+    return Reward(score=normalize_reward(0.01), feedback="Poor decision")
 
 
 def grade_hard(result):
