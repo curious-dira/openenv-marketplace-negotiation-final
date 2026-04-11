@@ -23,7 +23,7 @@ def run():
         env = MarketEnv(task)
         obs = env.reset()
 
-        # 🔥 Show buyer personality
+       
         print("Buyer Type:", env.buyer_type)
 
         done = False

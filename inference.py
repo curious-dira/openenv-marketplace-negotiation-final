@@ -4,12 +4,10 @@ from tasks import ALL_TASKS
 from models import Action
 from openai import OpenAI
 
-# 🔹 Required environment variables
 API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
-# 🔹 Initialize OpenAI client
 client = OpenAI(
     base_url=API_BASE_URL,
     api_key=HF_TOKEN,
