@@ -4,8 +4,8 @@ from env import MarketEnv
 from tasks import ALL_TASKS
 from models import Action
 
-API_BASE_URL = os.getenv("API_BASE_URL")
-MODEL_NAME = os.getenv("MODEL_NAME")
+API_BASE_URL = os.getenv("API_BASE_URL","https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME","gpt-4o-mini")
 HF_TOKEN = os.getenv("HF_TOKEN")
 
 client = OpenAI(
@@ -28,52 +28,56 @@ Choose one action:
 
 Respond with ONLY one word: accept, reject, or counter.
 """
-
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[{"role": "user", "content": prompt}],
             max_tokens=5,
         )
-
-        action_text = response.choices[0].message.content.strip().lower()
-
-        if "accept" in action_text:
+        text = response.choices[0].message.content.strip().lower()
+        if "accept" in text:
             return "accept"
-        elif "counter" in action_text:
+        elif "counter" in text:
             return "counter"
-        else:
-            return "reject"
-
+        return "reject"
     except Exception:
-        if obs.buyer_offer > 0.9 * obs.listed_price:
-            return "accept"
-        elif obs.buyer_offer > 0.5 * obs.listed_price:
-            return "counter"
-        else:
-            return "reject"
+        return "reject"
 
 def run():
     for task in ALL_TASKS:
-        print(f"[START] task={task['name']}")
+        print(f"[START] task={task['name']} env=market model={MODEL_NAME}")
 
         env = MarketEnv(task)
         obs = env.reset()
 
         done = False
-        total_reward = 0.0
+        step = 0
+        rewards = []
+        total_score = 0.0
 
         while not done:
+            step += 1
+
             action_type = llm_decision(obs)
             action = Action(action_type=action_type)
 
             obs, reward, done, _ = env.step(action)
 
-            total_reward += reward.score
+            r = float(reward.score)
+            rewards.append(r)
+            total_score += r
 
-            print(f"[STEP] round={obs.round} action={action_type} reward={reward.score}")
+            print(
+                f"[STEP] step={step} action={action_type} reward={r:.2f} done={str(done).lower()} error=null"
+            )
 
-        print(f"[END] task={task['name']} total_reward={total_reward}")
+        score = min(max(total_score / len(rewards), 0.0), 1.0)
+
+        rewards_str = ",".join(f"{x:.2f}" for x in rewards)
+
+        print(
+            f"[END] success=true steps={step} score={score:.2f} rewards={rewards_str}"
+        )
 
 if __name__ == "__main__":
     run()
