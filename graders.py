@@ -1,52 +1,33 @@
 from models import Reward
 
-def normalize_reward(score: float) -> float:
-    if score <= 0:
-        return 0.01
-    elif score >= 1:
-        return 0.99
-    return float(score)
+def safe_score(score):
+    return max(0.01, min(0.99, float(score)))
 
 def grade_easy(result):
     if result["action"] == "accept":
-        return Reward(score=normalize_reward(0.99), feedback="Accepted optimal offer")
-    return Reward(score=normalize_reward(0.01), feedback="Should accept high offer")
-
+        score = 0.95
+    else:
+        score = 0.05
+    return Reward(score=safe_score(score), feedback="easy")
 
 def grade_medium(result):
     if result["action"] == "counter":
-        return Reward(score=normalize_reward(0.99), feedback="Good negotiation")
+        score = 0.9
     elif result["action"] == "accept":
-        return Reward(score=normalize_reward(0.5), feedback="Acceptable but not optimal")
-    return Reward(score=normalize_reward(0.01), feedback="Poor decision")
-
+        score = 0.6
+    else:
+        score = 0.05
+    return Reward(score=safe_score(score), feedback="medium")
 
 def grade_hard(result):
-    score = 0
-
-    # 🔥 Profit-based reward
-    profit_ratio = result["buyer_offer"] / result["listed_price"]
+    score = 0.4
 
     if result["action"] == "accept":
-        score += profit_ratio
+        score += result["buyer_offer"] / result["listed_price"]
 
-    # 🔥 Reward negotiation
     if result["action"] == "counter":
-        score += 0.3
+        score += 0.2
 
-    # 🔥 Urgency penalty (time pressure)
-    score -= 0.15 * result["round"]
+    score -= 0.1 * result["round"]
 
-    # 🔥 Walk-away penalty
-    if result["action"] == "reject" and result["round"] == 1:
-        score -= 0.3
-
-    score = max(0, min(score, 1))
-    score = normalize_reward(score)
-
-    return Reward(
-        score=score,
-        feedback="Strategic evaluation"
-    )
-    
-#final_fix
+    return Reward(score=safe_score(score), feedback="hard")
