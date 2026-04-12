@@ -1,8 +1,8 @@
 import os
+from openai import OpenAI
 from env import MarketEnv
 from tasks import ALL_TASKS
 from models import Action
-from openai import OpenAI
 
 API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
@@ -14,10 +14,6 @@ client = OpenAI(
 )
 
 def llm_decision(obs):
-    """
-    Simple LLM-based decision.
-    (Does not need to be perfect — just valid)
-    """
     prompt = f"""
 You are a marketplace seller.
 
@@ -50,14 +46,12 @@ Respond with ONLY one word: accept, reject, or counter.
             return "reject"
 
     except Exception:
-        # fallback (safe default)
         if obs.buyer_offer > 0.9 * obs.listed_price:
             return "accept"
         elif obs.buyer_offer > 0.5 * obs.listed_price:
             return "counter"
         else:
             return "reject"
-
 
 def run():
     for task in ALL_TASKS:
@@ -77,14 +71,9 @@ def run():
 
             total_reward += reward.score
 
-            print(
-                f"[STEP] round={obs.round} action={action_type} reward={reward.score}"
-            )
+            print(f"[STEP] round={obs.round} action={action_type} reward={reward.score}")
 
         print(f"[END] task={task['name']} total_reward={total_reward}")
 
-
 if __name__ == "__main__":
     run()
-
-#final_fix
